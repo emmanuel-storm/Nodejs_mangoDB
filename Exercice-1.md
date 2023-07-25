@@ -30,7 +30,7 @@ Insérez les documents suivants dans la collection `employees` :
 
 ```
 
-* J'ai mis entre crochet car le code est en format Json (pas de format Bson sur l'éditeur)
+* J'ai mis entre crochet car le code est en format Json
 
 ### Écrivez une requête MongoDB pour trouver tous les documents dans la collection "employees".
 

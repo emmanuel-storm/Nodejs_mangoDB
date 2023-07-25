@@ -14,6 +14,12 @@
 
 - Creer un fichier .gitIgnore et ignorer le .env
 - Creer ensuite un .env.local
+- MongoDB : Systeme de gestion de base de donnée orienté document
+- Nodejs : une interface, un environnement qui permet d'executer du js, en local et sans forcement 
+besoin de connexion internet, il permet de faire du js coté server 
+- express : framework web
+- mongoose : ODM
+
 
 https://cloud.mongodb.com/v2/6492f3a52c337e3399885e74#/clusters/connect?clusterId=Cluster0
 
