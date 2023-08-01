@@ -1,30 +1,47 @@
-import morgan from "morgan";
-import dotenv from "dotenv";
-import express from "express";
-import routes from "./routes/index.js";
+import express from 'express';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import routes from "./routes/index.js"
+import mongoose from "mongoose";
+import connectDB from "./config/database.js";
+import { transports, format } from 'winston';
+import * as expressWinston from "express-winston";
+import errorHandler from './middleware/errorMiddleware.js';
 
+dotenv.config();
 
-dotenv.config()
-const app = express()
+connectDB();
 
-// Middleware
-app.use(morgan("dev"))
-app.use(express.json())
+const db = mongoose.connection;
 
-// Routes
+db.on('error', (error) => {
+    console.error('MongoDB connection error:', error);
+});
 
-app.use("/api", routes)
+db.once('open', () => {
+    console.log('Connected to MongoDB');
+});
 
-// Gestion erreur
+export const app = express();
 
-app.use((err, req, res, next) => {
-    console.error(err)
-    res.status(500).json({ error: "Something went wrong !" })
-})
+app.use(expressWinston.errorLogger({
+    transports: [
+        new transports.File({ filename: 'logs/error.log' })
+    ],
+    format: format.combine(
+        format.timestamp(),
+        format.json()
+    )
+}));
 
-// Demarrage du serveur
+app.use(morgan('dev'));
+app.use(express.json());
 
-const PORT = process.env.PORT || 3000
+app.use('/api/', routes);
+
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`)
-})
+    console.log(`Server listening on port ${PORT}`);
+});
