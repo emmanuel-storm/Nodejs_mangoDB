@@ -1,10 +1,12 @@
 import express from 'express';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import errorHandler from './middleware/errorMiddleware.js';
 import routes from "./routes/index.js"
 import mongoose from "mongoose";
 import connectDB from "./config/database.js";
+import { transports, format } from 'winston';
+import * as expressWinston from "express-winston";
+import errorHandler from './middleware/errorMiddleware.js';
 
 dotenv.config();
 
@@ -20,19 +22,25 @@ db.once('open', () => {
     console.log('Connected to MongoDB');
 });
 
-const app = express();
+export const app = express();
 
-// Middleware pour le logging
+app.use(expressWinston.errorLogger({
+    transports: [
+        new transports.File({ filename: 'logs/error.log' })
+    ],
+    format: format.combine(
+        format.timestamp(),
+        format.json()
+    )
+}));
+
 app.use(morgan('dev'));
 app.use(express.json());
 
-// Routes
 app.use('/api/', routes);
 
-// Gestion des erreurs
 app.use(errorHandler);
 
-// Démarrer le serveur
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);

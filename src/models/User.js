@@ -1,5 +1,5 @@
-// src/models/User.js
 import mongoose from 'mongoose';
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -17,6 +17,24 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
 });
+
+userSchema.statics.findByCredentials = async function (emailOrUsername, password) {
+    const User = this;
+    const user = await User.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    });
+
+    if (!user) {
+        throw new Error('Invalid credentials');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        throw new Error('Invalid credentials');
+    }
+
+    return user;
+};
 
 const User = mongoose.model('User', userSchema);
 
